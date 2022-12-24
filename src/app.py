@@ -1,5 +1,5 @@
 from enum import Enum
-from flask import Flask
+from flask import Flask, redirect, url_for, abort, Response
 from flask_restful import Resource, Api
 from flask_apispec import marshal_with, doc, use_kwargs
 from flask_apispec.views import MethodResource
@@ -35,10 +35,6 @@ class CandleSchema(Schema):
     volume = fields.Float(description="Volume")
 
 
-class QuoteResponseSchema(Schema):
-    CandleSchema = fields.List(fields.Nested(CandleSchema))
-
-
 class QuoteRequestSchema(Schema):
     stock = fields.String(
         required=True, description="Yahoo stock code", default="AAPL")
@@ -49,7 +45,8 @@ class QuoteRequestSchema(Schema):
 class QuoteController(MethodResource, Resource):
     @doc(description='Get stock quotes', tags=['Quotes'])
     @use_kwargs(QuoteRequestSchema, location=('query'))
-    @marshal_with(CandleSchema(many=True))  # marshalling
+    @marshal_with(CandleSchema(many=True), 200)  # marshalling
+    @marshal_with(None,code=404, description="Errors while loading")
     def get(self, **kwargs):
         #stock = request.args.get("stock", default="", type=str)
         
@@ -57,13 +54,19 @@ class QuoteController(MethodResource, Resource):
         Get method represents a GET API method
         '''
         quoteRequest = QuoteRequest(ChartConfig(kwargs["stock"], kwargs["timeframe"]), kwargs["date_from"], kwargs["date_till"])
-        loaded_df = YahooStockQuoteLoader().download(quoteRequest,use_cache= False)
+        try:
+            loaded_df = YahooStockQuoteLoader().download(quoteRequest,use_cache= False)
+        except Exception as ex:
+            return abort(Response(f"Get error: {ex}",404))
         _ret_list = CandleDto.from_df(loaded_df)
         return _ret_list
 
+@app.route('/')
+def index():
+    return redirect(url_for('flask-apispec.swagger-ui'), 301)
 
 api.add_resource(QuoteController, '/api/quote')
 docs.register(QuoteController)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80)
