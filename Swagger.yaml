@@ -1,0 +1,84 @@
+definitions:
+  Candle:
+    properties:
+      close:
+        description: Close price
+        type: number
+      date_open:
+        description: Date open candle
+        format: date
+        type: string
+      high:
+        description: High price
+        type: number
+      low:
+        description: Low price
+        type: number
+      open:
+        description: Open price
+        type: number
+      volume:
+        description: Volume
+        type: number
+    required:
+      - date_open
+    type: object
+info:
+  title: Yahoo quote loader service
+  version: v1
+paths:
+  /api/quote:
+    get:
+      description: Get stock quotes
+      parameters:
+        - description: Yahoo stock code
+          in: query
+          name: stock
+          required: true
+          type: string
+        - description: Timeframe
+          enum:
+            - MINUTE1
+            - MINUTE5
+            - MINUTE10
+            - MINUTE15
+            - MINUTE30
+            - HOUR
+            - DAY
+            - WEEK
+            - MONTH
+            - m1
+            - m5
+            - m10
+            - m15
+            - m30
+            - H
+            - D
+            - W
+            - M
+          in: query
+          name: timeframe
+          required: true
+          type: string
+        - description: Download from date
+          format: date
+          in: query
+          name: date_from
+          required: true
+          type: string
+        - description: Download till datea
+          format: date
+          in: query
+          name: date_till
+          required: true
+          type: string
+      responses:
+        default:
+          description: ''
+          schema:
+            items:
+              $ref: '#/definitions/Candle'
+            type: array
+      tags:
+        - Quotes
+swagger: 2.0.0

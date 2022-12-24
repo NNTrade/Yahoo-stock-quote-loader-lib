@@ -1,0 +1,5 @@
+NNTrade.datasource.stock_quote_loader_lib @ git+https://git@github.com/NNTrade/Stock-quote-loader-lib.git#egg=NNTrade.datasource.stock_quote_loader_lib
+Flask
+flask-restful
+flask-apispec
+
