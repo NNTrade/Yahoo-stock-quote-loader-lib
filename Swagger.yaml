@@ -1,3 +1,4 @@
+openapi: 3.0.0
 definitions:
   Candle:
     properties:
@@ -35,50 +36,55 @@ paths:
           in: query
           name: stock
           required: true
-          type: string
+          schema: 
+            type: string
+            example: "AAPL"
         - description: Timeframe
-          enum:
-            - MINUTE1
-            - MINUTE5
-            - MINUTE10
-            - MINUTE15
-            - MINUTE30
-            - HOUR
-            - DAY
-            - WEEK
-            - MONTH
-            - m1
-            - m5
-            - m10
-            - m15
-            - m30
-            - H
-            - D
-            - W
-            - M
           in: query
           name: timeframe
           required: true
-          type: string
+          schema: 
+            type: string
+            enum:
+            - DAY
+            - WEEK
+            - MONTH
+            - D
+            - W
+            - M
+            example: DAY
         - description: Download from date
-          format: date
           in: query
           name: date_from
           required: true
-          type: string
+          schema: 
+            type: string
+            format: date
+            example: "2020-01-01"
         - description: Download till datea
-          format: date
           in: query
           name: date_till
           required: true
-          type: string
+          schema: 
+            type: string
+            format: date
+            example: "2021-01-01"
       responses:
-        default:
-          description: ''
-          schema:
-            items:
-              $ref: '#/definitions/Candle'
-            type: array
+        '200':
+          description: 'Loaded stock quotes in candles'
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/definitions/Candle'
+                type: array
+        '400':
+          description: 'Error while loading'
+          content:
+            plain/text:
+              schema:
+                type: string
+                example: "Stock XYZ doesn't found"
       tags:
         - Quotes
-swagger: 2.0.0
+
